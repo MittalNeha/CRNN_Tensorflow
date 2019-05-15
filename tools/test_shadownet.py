@@ -8,6 +8,8 @@
 """
 Use shadow net to recognize the scene text of a single image
 """
+import sys, os
+sys.path.insert(0, os.getcwd())
 import argparse
 import os.path as ops
 
