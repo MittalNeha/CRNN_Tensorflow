@@ -9,14 +9,14 @@ from imutils.object_detection import non_max_suppression
 import sys, os
 sys.path.insert(0, os.getcwd())
 
-from tools import test_shadownet
+from tools.test_shadownet import *
 
 min_conf = 0.5
 FFMPEG_CMD = "ffmpeg -f rawvideo -pixel_format yuyv422 -video_size 848x477 -i"
 
 
 
-def init_args():
+def init_args_recog():
     """
 
     :return: parsed arguments and (updated) config.cfg object
@@ -122,7 +122,7 @@ if __name__ == '__main__':
     
     """
     # init images
-    args = init_args()
+    args = init_args_recog()
 
     # detect text
     image_name = args.image
