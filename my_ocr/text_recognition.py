@@ -142,7 +142,7 @@ if __name__ == '__main__':
     orig = image.copy()
     
     #Crop the image for Netflix use case 480, 160
-    W=480
+    WW=480
     H=160
     image = image[0:160, 0:480]
     
@@ -150,7 +150,7 @@ if __name__ == '__main__':
     
     # set the new width and height and then determine the ratio in change
     # for both the width and height
-    (newW, newH) = (W*2, H*2)
+    (newW, newH) = (WW*2, H*2)
     rW = origW / float(newW)
     rH = origH / float(newH)
     
@@ -158,7 +158,7 @@ if __name__ == '__main__':
     image = cv2.resize(image, (newW, newH), cv2.INTER_AREA)
     (H, W) = image.shape[:2]
 
-    boxes = get_text_boxes(image, W,H)
+    boxes = get_text_boxes(image, WW,H)
     
     #Read text for each box
     for (startX, startY, endX, endY) in boxes:
