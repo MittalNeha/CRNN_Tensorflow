@@ -163,7 +163,7 @@ if __name__ == '__main__':
     #Read text for each box
     for (startX, startY, endX, endY) in boxes:
         cv2.rectangle(image, (startX, startY), (endX, endY), (0, 255, 0), 2)
-        test_shadownet.recognize_image(
+        recognize_image(
           image[startY:endY, startX:endX], 
           weights_path=args.weights_path,
           char_dict_path=args.char_dict_path,
