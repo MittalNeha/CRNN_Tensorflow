@@ -214,8 +214,8 @@ def recognize_image(image, weights_path, char_dict_path, ord_map_dict_path, is_v
 
         preds = codec.sparse_tensor_to_str(preds[0])
 
-        logger.info('Predict image {:s} result {:s}'.format(
-            ops.split(image_path)[1], preds[0])
+        logger.info('Predict image result {:s}'.format(
+            preds[0])
         )
 
         if is_vis:
