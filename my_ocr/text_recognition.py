@@ -135,7 +135,7 @@ if __name__ == '__main__':
         cmd = FFMPEG_CMD +" "+ image_name + " "+ new_name
         #p = subprocess.Popen(['ls',  '-l', '../'])
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
-        print p.communicate()
+        print(p.communicate())
         image_name = new_name
         
     image = cv2.imread(image_name)
