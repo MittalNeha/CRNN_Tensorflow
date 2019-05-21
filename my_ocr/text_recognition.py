@@ -145,8 +145,8 @@ if __name__ == '__main__':
 
     #Crop the image for Netflix use case 480, 160
     W=480
-    H=160
-    image = image[0:160, 0:480]
+    H=224
+    image = image[0:224, 0:480]
 
     (origH, origW) = image.shape[:2]
 
@@ -179,10 +179,9 @@ if __name__ == '__main__':
     for i,box in enumerate(xSorted):
         if i == 0:
             box = np.concatenate((box,np.array([n_row])))
-            print(box)            
+            print(box)
             boxes_order.append(box)
             continue
-            
         if((box[1] - xSorted[i-1][1] < 4) and (box[1] - xSorted[i-1][1] > -4)):
             box = np.concatenate((box,np.array([n_row])))
             boxes_order.append(box)
