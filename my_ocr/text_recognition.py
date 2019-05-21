@@ -32,6 +32,8 @@ def init_args_recog():
                         help='Directory where ord map dictionaries for the dataset were stored')
     parser.add_argument('-v', '--visualize', type=args_str2bool, nargs='?', const=True,
                         help='Whether to display images')
+    parser.add_argument("-p", "--padding", type=float, default=0.0,
+                                                help="amount of padding to add to each border of ROI")
 
     return parser.parse_args()
 
@@ -127,7 +129,7 @@ if __name__ == '__main__':
     # detect text
     image_name = args.image
     print("Find the text in the image " + args.image)
-    
+
     file_ext = image_name[-4:]
     if(file_ext=='yuyv'):
         new_name = image_name[:-4]+'png'
@@ -137,47 +139,99 @@ if __name__ == '__main__':
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
         print(p.communicate())
         image_name = new_name
-        
+
     image = cv2.imread(image_name)
     orig = image.copy()
-    
+
     #Crop the image for Netflix use case 480, 160
-    WW=480
+    W=480
     H=160
     image = image[0:160, 0:480]
-    
+
     (origH, origW) = image.shape[:2]
-    
+
     # set the new width and height and then determine the ratio in change
     # for both the width and height
-    (newW, newH) = (WW*2, H*2)
+    (newW, newH) = (W*2, H*2)
     rW = origW / float(newW)
     rH = origH / float(newH)
-    
+
     # resize the image and grab the new image dimensions
     image = cv2.resize(image, (newW, newH), cv2.INTER_AREA)
     (H, W) = image.shape[:2]
 
-    boxes = get_text_boxes(image, WW,H)
-    
-    #Read text for each box
+    boxes = get_text_boxes(image, W,H)
+
+    #save the image
+    #Draw rectangles
+    text_boxes = image.copy()
     for (startX, startY, endX, endY) in boxes:
-        cv2.rectangle(image, (startX, startY), (endX, endY), (0, 255, 0), 2)
-        recognize_image(
+        cv2.rectangle(text_boxes, (startX, startY), (endX, endY), (0, 255, 0), 2)
+    cv2.imwrite(image_name[:-4]+'_out.jpg', text_boxes)
+
+    #Order the boundboxes
+    xSorted = boxes[np.argsort(boxes[:, 1]), :]
+    print("BEFORE:::")
+    print(xSorted)
+
+    n_row = 0
+    boxes_order = []
+    for i,box in enumerate(xSorted):
+        if i == 0:
+            box = np.concatenate((box,np.array([n_row])))
+            print(box)            
+            boxes_order.append(box)
+            continue
+            
+        if((box[1] - xSorted[i-1][1] < 4) and (box[1] - xSorted[i-1][1] > -4)):
+            box = np.concatenate((box,np.array([n_row])))
+            boxes_order.append(box)
+        else:
+            n_row = n_row+1
+            box = np.concatenate((box,np.array([n_row])))
+            boxes_order.append(box)
+    boxes = sorted(boxes_order , key=lambda k: [k[4], k[0]])
+    print("AFTER::")
+    print(boxes)
+
+    #Read text for each box
+    nRow=0
+    out = ""
+    for (startX, startY, endX, endY, row) in boxes:
+        #cv2.rectangle(image, (startX, startY), (endX, endY), (0, 255, 0), 2)
+        print("Reading text {}, {} ".format(startX, startY))
+
+        #add margin to boundbox
+        dX = int((endX - startX) * args.padding)
+        dY = int((endY - startY) * args.padding)
+
+        # apply padding to each side of the bounding box, respectively
+        startX = max(0, startX - dX)
+        startY = max(0, startY - dY)
+        endX = min(newW, endX + (dX * 2))
+        endY = min(newH, endY + (dY * 2)) 
+
+        text_read = recognize_image(
           image[startY:endY, startX:endX], 
           weights_path=args.weights_path,
           char_dict_path=args.char_dict_path,
           ord_map_dict_path=args.ord_map_dict_path,
           is_vis=args.visualize)
-    
-    
+
+        if row == nRow:
+            out = out + text_read + " "
+        else:
+            nRow = row
+            out = out + '\n' + text_read + " "
+
+    print("OUTPUT")
+    print(out)
     #Draw rectangles
-    for (startX, startY, endX, endY) in boxes:
-        cv2.rectangle(image, (startX, startY), (endX, endY), (0, 255, 0), 2)
-            
-    #save the image
-    #cv2.imwrite("", image)
+    #for (startX, startY, endX, endY) in boxes:
+    #    cv2.rectangle(image, (startX, startY), (endX, endY), (0, 255, 0), 2)
+
+
     # show the output image
-    cv2.imshow("Text Detection", image)
-    cv2.waitKey(0)
-    
+    #cv2.imshow("Text Detection", image)
+    #cv2.waitKey(0)
+

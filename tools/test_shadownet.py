@@ -164,6 +164,8 @@ def recognize_image(image, weights_path, char_dict_path, ord_map_dict_path, is_v
     image = cv2.resize(image, (new_width, new_heigth), interpolation=cv2.INTER_LINEAR)
     image_vis = image
     image = np.array(image, np.float32) / 127.5 - 1.0
+    
+    tf.reset_default_graph()
 
     inputdata = tf.placeholder(
         dtype=tf.float32,
@@ -225,7 +227,7 @@ def recognize_image(image, weights_path, char_dict_path, ord_map_dict_path, is_v
 
     sess.close()
 
-    return
+    return preds[0]
 
 
 if __name__ == '__main__':
