@@ -32,7 +32,9 @@ def init_args_recog():
                         help='Directory where ord map dictionaries for the dataset were stored')
     parser.add_argument('-v', '--visualize', type=args_str2bool, nargs='?', const=True,
                         help='Whether to display images')
-    parser.add_argument("-p", "--padding", type=float, default=0.0,
+    parser.add_argument("--paddingX", type=float, default=0.0,
+                                                help="amount of padding to add to each border of ROI")
+    parser.add_argument("--paddingY", type=float, default=0.0,
                                                 help="amount of padding to add to each border of ROI")
 
     return parser.parse_args()
@@ -199,16 +201,26 @@ if __name__ == '__main__':
     for (startX, startY, endX, endY, row) in boxes:
         #cv2.rectangle(image, (startX, startY), (endX, endY), (0, 255, 0), 2)
         print("Reading text {}, {} ".format(startX, startY))
+        
+        #Read Text in the original image
+        image = orig
+        startX 	= int(startX/2)
+        endX 	= int(endX/2)
+        startY 	= int(startY/2)
+        endY 	= int(endY/2)
+        #endY = endY+1
 
         #add margin to boundbox
-        dX = int((endX - startX) * args.padding)
-        dY = int((endY - startY) * args.padding)
+        dX = int((endX - startX) * args.paddingX)
+        dY = int((endY - startY) * args.paddingY)
+        
+        print("Padding {}, {} ".format(dX, dY))
 
         # apply padding to each side of the bounding box, respectively
         startX = max(0, startX - dX)
         startY = max(0, startY - dY)
-        endX = min(newW, endX + (dX * 2))
-        endY = min(newH, endY + (dY * 2)) 
+        endX = min(origW, endX + (dX * 2))
+        endY = min(origH, endY + (dY * 2)) 
 
         text_read = recognize_image(
           image[startY:endY, startX:endX], 

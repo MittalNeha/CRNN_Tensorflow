@@ -77,7 +77,7 @@ def recognize(image_path, weights_path, char_dict_path, ord_map_dict_path, is_vi
     scale_rate = new_heigth / image.shape[0]
     new_width = int(scale_rate * image.shape[1])
     new_width = new_width if new_width > CFG.ARCH.INPUT_SIZE[0] else CFG.ARCH.INPUT_SIZE[0]
-    image = cv2.resize(image, (new_width, new_heigth), interpolation=cv2.INTER_LINEAR)
+    image = cv2.resize(image, (new_width, new_heigth), interpolation=cv2.INTER_AREA)
     image_vis = image
     image = np.array(image, np.float32) / 127.5 - 1.0
 
